@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 
 import com.cnkaptan.nebenanandroidchallange.ApiActivity;
@@ -27,6 +28,11 @@ public class MainActivity extends ApiActivity {
     @Bind(R.id.rv_user_list)
     RecyclerView rvUserList;
     private LinearLayoutManager mLinearLayoutManager;
+    private boolean isLoading;
+    private static String nextUrl;
+    private static String lastUrl;
+    private static final int VISIBLE_TRESHOLD = 5;
+    private OnLoadMoreListener listener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,12 +49,33 @@ public class MainActivity extends ApiActivity {
             }
         });
 
-        Call<List<User>> usersCall = githubApi.getUsers();
+        listener = new OnLoadMoreListener() {
+            @Override
+            public void onLoadMore(int userId) {
+                githubApi.getUsersPaginationById(userId).enqueue(new Callback<List<User>>() {
+                    @Override
+                    public void onResponse(Call<List<User>> call, Response<List<User>> response) {
+                        listener.isLoading = false;
+                    }
 
+                    @Override
+                    public void onFailure(Call<List<User>> call, Throwable t) {
+
+                    }
+                });
+            }
+        };
+        rvUserList.addOnScrollListener(listener);
+
+
+
+        Call<List<User>> usersCall = githubApi.getUsers();
         usersCall.enqueue(new Callback<List<User>>() {
             @Override
             public void onResponse(Call<List<User>> call, Response<List<User>> response) {
                 rvUserList.setAdapter(new UserListAdapter(response.body(),getContext()));
+                nextUrl = response.headers().get("Link");
+                Log.e(TAG,nextUrl);
             }
 
             @Override
@@ -68,6 +95,8 @@ public class MainActivity extends ApiActivity {
     public Context getContext() {
         return this;
     }
+
+
 
     public static class RecyclerViewSeparator extends RecyclerView.ItemDecoration{
 
@@ -104,4 +133,7 @@ public class MainActivity extends ApiActivity {
             }
         }
     }
+
+
+
 }
