@@ -14,14 +14,13 @@ import retrofit.RestAdapter;
  */
 public abstract class BaseActivity extends AppCompatActivity {
 
-    public GithubService githubApi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(getLayoutId());
         ButterKnife.bind(this);
-        setApi();
+
     }
 
 
@@ -29,10 +28,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     public abstract Context getContext();
 
-    private void setApi(){
-         githubApi = new RestAdapter.Builder()
-                .setEndpoint(GithubService.ENDPOINT)
-                .build()
-                .create(GithubService.class);
-    }
+
+
+
 }

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Nebenan Android Challange</string>
+    <string name="github_profile_url">https://github.com/%1$s</string>
 </resources>

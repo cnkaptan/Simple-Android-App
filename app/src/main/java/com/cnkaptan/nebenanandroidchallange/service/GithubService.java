@@ -20,4 +20,6 @@ public interface GithubService {
 
     @GET("/users/{user_name}")
     void getUserDetail(@Path("user_name")String userName, Callback<DetailedUser> detailedUserCallback);
+
+
 }

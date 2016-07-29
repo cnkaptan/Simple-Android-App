@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import com.cnkaptan.nebenanandroidchallange.R;
 import com.cnkaptan.nebenanandroidchallange.model.User;
+import com.cnkaptan.nebenanandroidchallange.utils.RoundedTransformation;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -40,7 +41,11 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
     public void onBindViewHolder(UserViewHolder holder, int position) {
         User user = getItem(position);
         holder.tvUserName.setText(user.getLogin());
-        Picasso.with(context).load(user.getAvatar_url()).into(holder.ivUserAvatar);
+        Picasso.with(context)
+                .load(user.getAvatar_url())
+                .transform(new RoundedTransformation(20,0))
+                .fit()
+                .into(holder.ivUserAvatar);
     }
 
     @Override

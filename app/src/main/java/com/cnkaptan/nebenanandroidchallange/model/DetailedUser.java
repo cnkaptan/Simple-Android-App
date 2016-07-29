@@ -383,33 +383,33 @@ public class DetailedUser implements Parcelable {
     public String toString() {
         return "DetailedUser{" +
                 "login='" + login + '\'' +
-                ", id=" + id +
-                ", avatar_url='" + avatar_url + '\'' +
-                ", gravatar_id='" + gravatar_id + '\'' +
-                ", url='" + url + '\'' +
-                ", html_url='" + html_url + '\'' +
-                ", followers_url='" + followers_url + '\'' +
-                ", following_url='" + following_url + '\'' +
-                ", gists_url='" + gists_url + '\'' +
-                ", starred_url='" + starred_url + '\'' +
-                ", subscriptions_url='" + subscriptions_url + '\'' +
-                ", organizations_url='" + organizations_url + '\'' +
-                ", repos_url='" + repos_url + '\'' +
-                ", events_url='" + events_url + '\'' +
-                ", received_events_url='" + received_events_url + '\'' +
-                ", type='" + type + '\'' +
-                ", site_admin=" + site_admin +
-                ", name='" + name + '\'' +
-                ", blog='" + blog + '\'' +
-                ", location='" + location + '\'' +
-                ", email='" + email + '\'' +
-                ", bio='" + bio + '\'' +
-                ", public_repos=" + public_repos +
-                ", public_gists=" + public_gists +
-                ", followers=" + followers +
-                ", following=" + following +
-                ", created_at='" + created_at + '\'' +
-                ", updated_at='" + updated_at + '\'' +
+                ",\nid=" + id +
+                ",\navatar_url='" + avatar_url + '\'' +
+                ",\ngravatar_id='" + gravatar_id + '\'' +
+                ",\nurl='" + url + '\'' +
+                ",\nhtml_url='" + html_url + '\'' +
+                ",\nfollowers_url='" + followers_url + '\'' +
+                ",\nfollowing_url='" + following_url + '\'' +
+                ",\ngists_url='" + gists_url + '\'' +
+                ",\nstarred_url='" + starred_url + '\'' +
+                ",\nsubscriptions_url='" + subscriptions_url + '\'' +
+                ",\norganizations_url='" + organizations_url + '\'' +
+                ",\nrepos_url='" + repos_url + '\'' +
+                ",\nevents_url='" + events_url + '\'' +
+                ",\nreceived_events_url='" + received_events_url + '\'' +
+                ",\ntype='" + type + '\'' +
+                ",\nsite_admin=" + site_admin +
+                ",\nname='" + name + '\'' +
+                ",\nblog='" + blog + '\'' +
+                ",\nlocation='" + location + '\'' +
+                ",\nemail='" + email + '\'' +
+                ",\nbio='" + bio + '\'' +
+                ",\npublic_repos=" + public_repos +
+                ",\npublic_gists=" + public_gists +
+                ",\nfollowers=" + followers +
+                ",\nfollowing=" + following +
+                ",\ncreated_at='" + created_at + '\'' +
+                ",\nupdated_at='" + updated_at + '\'' +
                 '}';
     }
 }
