@@ -9,9 +9,10 @@ import com.cnkaptan.nebenanandroidchallange.ApiActivity;
 import com.cnkaptan.nebenanandroidchallange.R;
 import com.cnkaptan.nebenanandroidchallange.model.DetailedUser;
 
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 
 public class UserDetailActivity extends ApiActivity {
 
@@ -32,17 +33,19 @@ public class UserDetailActivity extends ApiActivity {
 
         mUserName = getIntent().getStringExtra(USER_NAME);
 
-        githubApi.getUserDetail(mUserName, new Callback<DetailedUser>() {
+        Call<DetailedUser> detailedUserCall = githubApi.getUserDetail(mUserName);
+        detailedUserCall.enqueue(new Callback<DetailedUser>() {
             @Override
-            public void success(DetailedUser detailedUser, Response response) {
-                Log.e(TAG,detailedUser.toString());
+            public void onResponse(Call<DetailedUser> call, Response<DetailedUser> response) {
+                Log.e(TAG,response.body().toString());
             }
 
             @Override
-            public void failure(RetrofitError error) {
+            public void onFailure(Call<DetailedUser> call, Throwable t) {
 
             }
         });
+
     }
 
     @Override

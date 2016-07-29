@@ -5,21 +5,23 @@ import com.cnkaptan.nebenanandroidchallange.model.User;
 
 import java.util.List;
 
-import retrofit.Callback;
-import retrofit.http.GET;
-import retrofit.http.Path;
+import retrofit2.Call;
+import retrofit2.http.GET;
+import retrofit2.http.Path;
+import retrofit2.http.Url;
 
 /**
  * Created by cnkaptan on 28/07/16.
  */
 public interface GithubService {
-    String ENDPOINT = "https://api.github.com";
+    String BASE_URL = "https://api.github.com/";
 
     @GET("/users")
-    void getUsers(Callback<List<User>> usersCallback);
+    Call<List<User>> getUsers();
 
     @GET("/users/{user_name}")
-    void getUserDetail(@Path("user_name")String userName, Callback<DetailedUser> detailedUserCallback);
+    Call<DetailedUser> getUserDetail(@Path("user_name")String userName);
 
-
+    @GET
+    Call<List<User>> getUsersPagination(@Url String url);
 }

@@ -4,10 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.cnkaptan.nebenanandroidchallange.service.GithubService;
-
 import butterknife.ButterKnife;
-import retrofit.RestAdapter;
 
 /**
  * Created by cnkaptan on 28/07/16.

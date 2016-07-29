@@ -7,7 +7,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 
 import com.cnkaptan.nebenanandroidchallange.ApiActivity;
@@ -18,10 +17,9 @@ import com.cnkaptan.nebenanandroidchallange.utils.ItemClickSupport;
 import java.util.List;
 
 import butterknife.Bind;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Header;
-import retrofit.client.Response;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends ApiActivity {
 
@@ -45,21 +43,20 @@ public class MainActivity extends ApiActivity {
             }
         });
 
-        githubApi.getUsers(new Callback<List<User>>() {
+        Call<List<User>> usersCall = githubApi.getUsers();
+
+        usersCall.enqueue(new Callback<List<User>>() {
             @Override
-            public void success(List<User> users, Response response) {
-                rvUserList.setAdapter(new UserListAdapter(users,getContext()));
-                List<Header> headers = response.getHeaders();
-                for (Header header:headers){
-                    Log.e(TAG,String.format("%s - %s",header.getName(),header.getValue()));
-                }
+            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
+                rvUserList.setAdapter(new UserListAdapter(response.body(),getContext()));
             }
 
             @Override
-            public void failure(RetrofitError error) {
+            public void onFailure(Call<List<User>> call, Throwable t) {
 
             }
         });
+
     }
 
     @Override
