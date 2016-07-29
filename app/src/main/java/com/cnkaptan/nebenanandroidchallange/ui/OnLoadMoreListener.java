@@ -2,7 +2,6 @@ package com.cnkaptan.nebenanandroidchallange.ui;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 
 import com.cnkaptan.nebenanandroidchallange.model.User;
 
@@ -10,23 +9,39 @@ import com.cnkaptan.nebenanandroidchallange.model.User;
  * Created by cihankaptan on 29/07/16.
  */
 public abstract class OnLoadMoreListener extends RecyclerView.OnScrollListener {
-    private static final String TAG = OnLoadMoreListener.class.getSimpleName();
+    private int previousTotal = 0; // The total number of items in the dataset after the last load
+    private boolean loading = true; // True if we are still waiting for the last set of data to load.
+    private int visibleThreshold = 5; // The minimum amount of items to have below your current scroll position before loading more.
+    int firstVisibleItem, visibleItemCount, totalItemCount;
+
     private LinearLayoutManager mLinearLayoutManager;
-    private static final int VISIBLE_TRESHOLD = 5;
-    public boolean isLoading;
-    public abstract void onLoadMore(int userId);
+
+    public OnLoadMoreListener(LinearLayoutManager linearLayoutManager) {
+        this.mLinearLayoutManager = linearLayoutManager;
+    }
+
     @Override
     public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
         super.onScrolled(recyclerView, dx, dy);
-        mLinearLayoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-        int totalItemCount = mLinearLayoutManager.getItemCount();
-        int lastVisibleItem = mLinearLayoutManager.findLastVisibleItemPosition();
 
-        if (!isLoading && totalItemCount <= (lastVisibleItem + VISIBLE_TRESHOLD)) {
-            UserListAdapter userListAdapter = (UserListAdapter) recyclerView.getAdapter();
-            User user = userListAdapter.getItem(totalItemCount-1);
-            Log.e(TAG,"onLoadMore");
+        visibleItemCount = recyclerView.getChildCount();
+        totalItemCount = mLinearLayoutManager.getItemCount();
+        firstVisibleItem = mLinearLayoutManager.findFirstVisibleItemPosition();
+
+        if (loading) {
+            if (totalItemCount > previousTotal) {
+                loading = false;
+                previousTotal = totalItemCount;
+            }
+        }
+        if (!loading && (totalItemCount - visibleItemCount)
+                <= (firstVisibleItem + visibleThreshold)) {
+
+            User user = ((UserListAdapter)recyclerView.getAdapter()).getItem(totalItemCount-1);
             onLoadMore(user.getId());
+
+            loading = true;
         }
     }
+    public abstract void onLoadMore(int userId);
 }

@@ -32,7 +32,7 @@ public class MainActivity extends ApiActivity {
     private static String nextUrl;
     private static String lastUrl;
     private static final int VISIBLE_TRESHOLD = 5;
-    private OnLoadMoreListener listener;
+    private UserListAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,13 +49,18 @@ public class MainActivity extends ApiActivity {
             }
         });
 
-        listener = new OnLoadMoreListener() {
+
+        rvUserList.addOnScrollListener(new OnLoadMoreListener(mLinearLayoutManager) {
             @Override
             public void onLoadMore(int userId) {
-                githubApi.getUsersPaginationById(userId).enqueue(new Callback<List<User>>() {
+                Log.e(TAG,""+userId);
+
+                Call<List<User>> listCall = githubApi.getUsersPaginationById(userId);
+
+                listCall.enqueue(new Callback<List<User>>() {
                     @Override
                     public void onResponse(Call<List<User>> call, Response<List<User>> response) {
-                        listener.isLoading = false;
+                        adapter.addMore(response.body());
                     }
 
                     @Override
@@ -64,16 +69,15 @@ public class MainActivity extends ApiActivity {
                     }
                 });
             }
-        };
-        rvUserList.addOnScrollListener(listener);
-
+        });
 
 
         Call<List<User>> usersCall = githubApi.getUsers();
         usersCall.enqueue(new Callback<List<User>>() {
             @Override
             public void onResponse(Call<List<User>> call, Response<List<User>> response) {
-                rvUserList.setAdapter(new UserListAdapter(response.body(),getContext()));
+                adapter = new UserListAdapter(response.body(), getContext());
+                rvUserList.setAdapter(adapter);
                 nextUrl = response.headers().get("Link");
                 Log.e(TAG,nextUrl);
             }

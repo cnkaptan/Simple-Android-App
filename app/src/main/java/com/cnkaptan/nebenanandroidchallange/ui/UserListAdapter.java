@@ -31,6 +31,11 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.UserVi
         this.context = context;
     }
 
+    public void addMore(List<User> users){
+        this.users.addAll(users);
+        notifyDataSetChanged();
+    }
+
     @Override
     public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_user_list_layout, parent, false);
