@@ -1,6 +1,7 @@
 package com.cnkaptan.nebenanandroidchallange.service;
 
 import com.cnkaptan.nebenanandroidchallange.model.DetailedUser;
+import com.cnkaptan.nebenanandroidchallange.model.Repo;
 import com.cnkaptan.nebenanandroidchallange.model.User;
 
 import java.util.List;
@@ -22,6 +23,9 @@ public interface GithubService {
 
     @GET("/users/{user_name}")
     Call<DetailedUser> getUserDetail(@Path("user_name")String userName);
+
+    @GET("/users/{user_name}/repos")
+    Call<List<Repo>> getRepos(@Path("user_name")String userName);
 
     @GET
     Call<List<User>> getUsersPagination(@Url String url);

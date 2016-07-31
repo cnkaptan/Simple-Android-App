@@ -1,4 +1,4 @@
-package com.cnkaptan.nebenanandroidchallange.ui;
+package com.cnkaptan.nebenanandroidchallange.ui.main;
 
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;

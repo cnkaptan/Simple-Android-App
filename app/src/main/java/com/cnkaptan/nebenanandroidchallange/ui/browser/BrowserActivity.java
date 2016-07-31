@@ -1,4 +1,4 @@
-package com.cnkaptan.nebenanandroidchallange.ui;
+package com.cnkaptan.nebenanandroidchallange.ui.browser;
 
 import android.content.Context;
 import android.content.Intent;
@@ -13,14 +13,20 @@ import butterknife.Bind;
 
 public class BrowserActivity extends BaseActivity {
 
-    public static final String USER_NAME = "user_name";
-    public String mUsername;
+    public static final String URL = "url";
+    public static final String FLAG = "flag";
+    public static final int USERNAME = 100;
+    public static final int FULL_URL = 101;
+    private static final int DEFAULT_VALUE = 0;
+    public String mURl;
+    public int flag;
     @Bind(R.id.webview)
     WebView webview;
 
-    public static Intent newInstance(Context context, String userName) {
+    public static Intent newInstance(Context context, String url,int flag) {
         Intent intent = new Intent(context, BrowserActivity.class);
-        intent.putExtra(USER_NAME, userName);
+        intent.putExtra(URL, url);
+        intent.putExtra(FLAG,flag);
         return intent;
     }
 
@@ -29,12 +35,22 @@ public class BrowserActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mUsername = getIntent().getStringExtra(USER_NAME);
-
+        mURl = getIntent().getStringExtra(URL);
+        flag = getIntent().getIntExtra(FLAG, DEFAULT_VALUE);
 
         WebSettings webSettings = webview.getSettings();
         webSettings.setJavaScriptEnabled(true);
-        webview.loadUrl(getProfileUrl(mUsername));
+
+        if(flag == USERNAME){
+            webview.loadUrl(getProfileUrl(mURl));
+        }else if (flag == FULL_URL){
+            webview.loadUrl(mURl);
+        }else{
+            finish();
+        }
+
+
+
     }
 
     @Override
@@ -47,7 +63,7 @@ public class BrowserActivity extends BaseActivity {
         return this;
     }
 
-    public String getProfileUrl(String mUsername) {
+    private String getProfileUrl(String mUsername) {
         return String.format(getString(R.string.github_profile_url),mUsername);
     }
 }
