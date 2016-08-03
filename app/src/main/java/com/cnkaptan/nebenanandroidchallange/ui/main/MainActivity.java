@@ -18,9 +18,9 @@ import com.cnkaptan.nebenanandroidchallange.utils.ItemClickSupport;
 import java.util.List;
 
 import butterknife.Bind;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 public class MainActivity extends ApiActivity implements ItemClickSupport.OnItemClickListener,ItemClickSupport.OnItemLongClickListener {
 
@@ -47,38 +47,53 @@ public class MainActivity extends ApiActivity implements ItemClickSupport.OnItem
             public void onLoadMore(int userId) {
                 Log.e(TAG,""+userId);
 
-                Call<List<User>> listCall = githubApi.getUsersPaginationById(userId);
+                githubApi.getObservableUsersPaginationById(userId)
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe(new Subscriber<List<User>>() {
+                            @Override
+                            public void onCompleted() {
 
-                listCall.enqueue(new Callback<List<User>>() {
+                            }
+
+                            @Override
+                            public void onError(Throwable e) {
+                                DialogUtils.showGeneralErrorDialog(getContext(),errorDefine(e));
+                            }
+
+                            @Override
+                            public void onNext(List<User> users) {
+                                adapter.addMore(users);
+                            }
+                        });
+
+            }
+        });
+
+
+        githubApi.getObservableUser()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<List<User>>() {
                     @Override
-                    public void onResponse(Call<List<User>> call, Response<List<User>> response) {
-                        adapter.addMore(response.body());
+                    public void onCompleted() {
+
                     }
 
                     @Override
-                    public void onFailure(Call<List<User>> call, Throwable t) {
-                        DialogUtils.showGeneralErrorDialog(getContext(),errorDefine(t));
+                    public void onError(Throwable e) {
+                        DialogUtils.showGeneralErrorDialog(getContext(),errorDefine(e));
+                    }
+
+                    @Override
+                    public void onNext(List<User> users) {
+                        adapter = new UserListAdapter(users, getContext());
+                        rvUserList.setAdapter(adapter);
                     }
                 });
-            }
-        });
 
 
-        Call<List<User>> usersCall = githubApi.getUsers();
-        usersCall.enqueue(new Callback<List<User>>() {
-            @Override
-            public void onResponse(Call<List<User>> call, Response<List<User>> response) {
-                adapter = new UserListAdapter(response.body(), getContext());
-                rvUserList.setAdapter(adapter);
-                nextUrl = response.headers().get("Link");
-                Log.e(TAG,nextUrl);
-            }
 
-            @Override
-            public void onFailure(Call<List<User>> call, Throwable t) {
-                DialogUtils.showGeneralErrorDialog(getContext(),errorDefine(t));
-            }
-        });
 
     }
 

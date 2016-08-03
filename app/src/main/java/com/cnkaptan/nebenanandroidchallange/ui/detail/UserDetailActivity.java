@@ -8,7 +8,6 @@ import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -24,9 +23,9 @@ import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import butterknife.Bind;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 
 public class UserDetailActivity extends ApiActivity implements ItemClickSupport.OnItemClickListener{
@@ -66,38 +65,53 @@ public class UserDetailActivity extends ApiActivity implements ItemClickSupport.
                 finish();
             }
         });
-
         rvRepos.setLayoutManager(new LinearLayoutManager(this));
-
-        Call<DetailedUser> detailedUserCall = githubApi.getUserDetail(mUserName);
-        detailedUserCall.enqueue(new Callback<DetailedUser>() {
-            @Override
-            public void onResponse(Call<DetailedUser> call, Response<DetailedUser> response) {
-                Log.e(TAG, response.body().toString());
-                Picasso.with(getContext()).load(response.body().getAvatar_url()).into(ivUserAvatar);
-            }
-
-            @Override
-            public void onFailure(Call<DetailedUser> call, Throwable t) {
-
-            }
-        });
-
-        Call<List<Repo>> repos = githubApi.getRepos(mUserName);
-        repos.enqueue(new Callback<List<Repo>>() {
-            @Override
-            public void onResponse(Call<List<Repo>> call, Response<List<Repo>> response) {
-                detailListAdapter = new DetailListAdapter(response.body(),getContext());
-                rvRepos.setAdapter(detailListAdapter);
-            }
-
-            @Override
-            public void onFailure(Call<List<Repo>> call, Throwable t) {
-                DialogUtils.showGeneralErrorDialog(getContext(),errorDefine(t));
-            }
-        });
-
         ItemClickSupport.addTo(rvRepos).setOnItemClickListener(this);
+
+
+        githubApi.getObservableUserDetail(mUserName)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<DetailedUser>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                        DialogUtils.showGeneralErrorDialog(getContext(),errorDefine(e));
+                    }
+
+                    @Override
+                    public void onNext(DetailedUser detailedUser) {
+                        Picasso.with(getContext()).load(detailedUser.getAvatar_url()).into(ivUserAvatar);
+                    }
+                });
+
+        githubApi.getObservableRepos(mUserName)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Subscriber<List<Repo>>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+
+                        DialogUtils.showGeneralErrorDialog(getContext(),errorDefine(e));
+                    }
+
+                    @Override
+                    public void onNext(List<Repo> repos) {
+                        detailListAdapter = new DetailListAdapter(repos,getContext());
+                        rvRepos.setAdapter(detailListAdapter);
+                    }
+                });
+
 
 
 
