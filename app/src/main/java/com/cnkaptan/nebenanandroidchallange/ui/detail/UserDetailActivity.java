@@ -24,11 +24,12 @@ import java.util.List;
 
 import butterknife.Bind;
 import rx.Subscriber;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 
-public class UserDetailActivity extends ApiActivity implements ItemClickSupport.OnItemClickListener{
+public class UserDetailActivity extends ApiActivity implements ItemClickSupport.OnItemClickListener {
 
     public static final String USER_NAME = "user_name";
     private static final String TAG = UserDetailActivity.class.getSimpleName();
@@ -44,6 +45,9 @@ public class UserDetailActivity extends ApiActivity implements ItemClickSupport.
     RecyclerView rvRepos;
     DetailListAdapter detailListAdapter;
     private String mUserName;
+
+    Subscription subscriptionUserDetail;
+    Subscription subscriptionRepos;
 
     public static Intent newInstance(Context context, String username) {
         Intent intent = new Intent(context, UserDetailActivity.class);
@@ -69,7 +73,7 @@ public class UserDetailActivity extends ApiActivity implements ItemClickSupport.
         ItemClickSupport.addTo(rvRepos).setOnItemClickListener(this);
 
 
-        githubApi.getObservableUserDetail(mUserName)
+        subscriptionUserDetail = githubApi.getObservableUserDetail(mUserName)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<DetailedUser>() {
@@ -81,7 +85,7 @@ public class UserDetailActivity extends ApiActivity implements ItemClickSupport.
                     @Override
                     public void onError(Throwable e) {
 
-                        DialogUtils.showGeneralErrorDialog(getContext(),errorDefine(e));
+                        DialogUtils.showGeneralErrorDialog(getContext(), errorDefine(e));
                     }
 
                     @Override
@@ -90,7 +94,7 @@ public class UserDetailActivity extends ApiActivity implements ItemClickSupport.
                     }
                 });
 
-        githubApi.getObservableRepos(mUserName)
+        subscriptionUserDetail = githubApi.getObservableRepos(mUserName)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<List<Repo>>() {
@@ -102,20 +106,19 @@ public class UserDetailActivity extends ApiActivity implements ItemClickSupport.
                     @Override
                     public void onError(Throwable e) {
 
-                        DialogUtils.showGeneralErrorDialog(getContext(),errorDefine(e));
+                        DialogUtils.showGeneralErrorDialog(getContext(), errorDefine(e));
                     }
 
                     @Override
                     public void onNext(List<Repo> repos) {
-                        detailListAdapter = new DetailListAdapter(repos,getContext());
+                        detailListAdapter = new DetailListAdapter(repos, getContext());
                         rvRepos.setAdapter(detailListAdapter);
                     }
                 });
 
 
-
-
     }
+
     @Override
     public int getLayoutId() {
         return R.layout.activity_user_detail;
@@ -130,12 +133,19 @@ public class UserDetailActivity extends ApiActivity implements ItemClickSupport.
     protected void onDestroy() {
         super.onDestroy();
         ItemClickSupport.removeFrom(rvRepos);
+
+        subscriptionUnscribe(subscriptionUserDetail);
+        subscriptionUnscribe(subscriptionRepos);
+
     }
 
     @Override
     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
         startActivity(BrowserActivity.newInstance(getContext(),
-                getContext().getString(R.string.github_repo_url_format,mUserName,detailListAdapter.getItem(position).getName()),
+                getContext().getString(R.string.github_repo_url_format, mUserName, detailListAdapter.getItem(position).getName()),
                 BrowserActivity.FULL_URL));
     }
+
+
+
 }

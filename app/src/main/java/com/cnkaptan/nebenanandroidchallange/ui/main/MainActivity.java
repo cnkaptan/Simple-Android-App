@@ -19,17 +19,19 @@ import java.util.List;
 
 import butterknife.Bind;
 import rx.Subscriber;
+import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class MainActivity extends ApiActivity implements ItemClickSupport.OnItemClickListener,ItemClickSupport.OnItemLongClickListener {
+public class MainActivity extends ApiActivity implements ItemClickSupport.OnItemClickListener, ItemClickSupport.OnItemLongClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     @Bind(R.id.rv_user_list)
     RecyclerView rvUserList;
     private LinearLayoutManager mLinearLayoutManager;
-    private static String nextUrl;
     private UserListAdapter adapter;
+    Subscription subscriptionUsers;
+    Subscription subscriptionUsersPagination;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,13 +43,12 @@ public class MainActivity extends ApiActivity implements ItemClickSupport.OnItem
         ItemClickSupport.addTo(rvUserList).setOnItemLongClickListener(this);
 
 
-
         rvUserList.addOnScrollListener(new OnLoadMoreListener(mLinearLayoutManager) {
             @Override
             public void onLoadMore(int userId) {
-                Log.e(TAG,""+userId);
+                Log.e(TAG, "" + userId);
 
-                githubApi.getObservableUsersPaginationById(userId)
+                subscriptionUsersPagination = githubApi.getObservableUsersPaginationById(userId)
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribe(new Subscriber<List<User>>() {
@@ -58,7 +59,7 @@ public class MainActivity extends ApiActivity implements ItemClickSupport.OnItem
 
                             @Override
                             public void onError(Throwable e) {
-                                DialogUtils.showGeneralErrorDialog(getContext(),errorDefine(e));
+                                DialogUtils.showGeneralErrorDialog(getContext(), errorDefine(e));
                             }
 
                             @Override
@@ -71,7 +72,7 @@ public class MainActivity extends ApiActivity implements ItemClickSupport.OnItem
         });
 
 
-        githubApi.getObservableUser()
+        subscriptionUsers = githubApi.getObservableUser()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Subscriber<List<User>>() {
@@ -82,7 +83,7 @@ public class MainActivity extends ApiActivity implements ItemClickSupport.OnItem
 
                     @Override
                     public void onError(Throwable e) {
-                        DialogUtils.showGeneralErrorDialog(getContext(),errorDefine(e));
+                        DialogUtils.showGeneralErrorDialog(getContext(), errorDefine(e));
                     }
 
                     @Override
@@ -91,8 +92,6 @@ public class MainActivity extends ApiActivity implements ItemClickSupport.OnItem
                         rvUserList.setAdapter(adapter);
                     }
                 });
-
-
 
 
     }
@@ -113,18 +112,20 @@ public class MainActivity extends ApiActivity implements ItemClickSupport.OnItem
         super.onDestroy();
         ItemClickSupport.removeFrom(rvUserList);
         rvUserList.addOnScrollListener(null);
+        subscriptionUnscribe(subscriptionUsers);
+        subscriptionUnscribe(subscriptionUsersPagination);
     }
 
     @Override
     public void onItemClicked(RecyclerView recyclerView, int position, View v) {
         startActivity(UserDetailActivity.newInstance(getContext(),
-                ((UserListAdapter)recyclerView.getAdapter()).getItem(position).getLogin()));
+                ((UserListAdapter) recyclerView.getAdapter()).getItem(position).getLogin()));
     }
 
     @Override
     public boolean onItemLongClicked(RecyclerView recyclerView, int position, View v) {
         startActivity(BrowserActivity.newInstance(getContext(),
-                ((UserListAdapter)recyclerView.getAdapter()).getItem(position).getLogin(),
+                ((UserListAdapter) recyclerView.getAdapter()).getItem(position).getLogin(),
                 BrowserActivity.USERNAME));
         return false;
     }
