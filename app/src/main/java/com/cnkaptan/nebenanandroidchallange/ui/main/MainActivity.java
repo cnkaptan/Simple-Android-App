@@ -23,7 +23,7 @@ import rx.Subscription;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
-public class MainActivity extends ApiActivity implements ItemClickSupport.OnItemClickListener, ItemClickSupport.OnItemLongClickListener {
+public class MainActivity extends ApiActivity implements MainContract.MainView,ItemClickSupport.OnItemClickListener, ItemClickSupport.OnItemLongClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     @Bind(R.id.rv_user_list)
@@ -128,5 +128,21 @@ public class MainActivity extends ApiActivity implements ItemClickSupport.OnItem
                 ((UserListAdapter) recyclerView.getAdapter()).getItem(position).getLogin(),
                 BrowserActivity.USERNAME));
         return false;
+    }
+
+    @Override
+    public void loadMoreSuccess(List<User> users) {
+        adapter.addMore(users);
+    }
+
+    @Override
+    public void loadServiceFail(Throwable t) {
+        DialogUtils.showGeneralErrorDialog(getContext(), errorDefine(t));
+    }
+
+    @Override
+    public void firstDataInitializeSuccess(List<User> users) {
+        adapter = new UserListAdapter(users, getContext());
+        rvUserList.setAdapter(adapter);
     }
 }
