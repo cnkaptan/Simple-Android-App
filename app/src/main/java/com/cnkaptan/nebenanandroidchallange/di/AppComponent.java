@@ -1,5 +1,6 @@
 package com.cnkaptan.nebenanandroidchallange.di;
 
+import com.cnkaptan.nebenanandroidchallange.ui.detail.UserDetailActivity;
 import com.cnkaptan.nebenanandroidchallange.ui.main.MainActivity;
 
 import dagger.Component;
@@ -11,4 +12,5 @@ import dagger.Component;
 @Component(modules = {AppModule.class})
 public interface AppComponent {
     void inject(MainActivity mainActivity);
+    void inject(UserDetailActivity userDetailActivity);
 }

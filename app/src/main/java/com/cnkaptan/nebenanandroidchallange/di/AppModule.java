@@ -1,6 +1,8 @@
 package com.cnkaptan.nebenanandroidchallange.di;
 
 import com.cnkaptan.nebenanandroidchallange.service.RetrofitImpl;
+import com.cnkaptan.nebenanandroidchallange.ui.detail.UserDetailContract;
+import com.cnkaptan.nebenanandroidchallange.ui.detail.UserDetailPresenterImpl;
 import com.cnkaptan.nebenanandroidchallange.ui.main.MainContract;
 import com.cnkaptan.nebenanandroidchallange.ui.main.MainPresenterImpl;
 
@@ -16,5 +18,10 @@ public class AppModule {
     @Provides
     public MainContract.MainPresenter provideMainPresenter(){
         return new MainPresenterImpl(new RetrofitImpl());
+    }
+
+    @Provides
+    public UserDetailContract.UserDetailPresenter provideUserDetailPresenter(){
+        return  new UserDetailPresenterImpl(new RetrofitImpl());
     }
 }

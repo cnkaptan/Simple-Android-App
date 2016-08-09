@@ -12,14 +12,23 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.cnkaptan.nebenanandroidchallange.BaseActivity;
+import com.cnkaptan.nebenanandroidchallange.GithubApplication;
 import com.cnkaptan.nebenanandroidchallange.R;
+import com.cnkaptan.nebenanandroidchallange.model.DetailedUser;
+import com.cnkaptan.nebenanandroidchallange.model.Repo;
 import com.cnkaptan.nebenanandroidchallange.ui.browser.BrowserActivity;
+import com.cnkaptan.nebenanandroidchallange.utils.DialogUtils;
 import com.cnkaptan.nebenanandroidchallange.utils.ItemClickSupport;
+import com.squareup.picasso.Picasso;
+
+import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.Bind;
 
 
-public class UserDetailActivity extends BaseActivity implements ItemClickSupport.OnItemClickListener {
+public class UserDetailActivity extends BaseActivity implements ItemClickSupport.OnItemClickListener, UserDetailContract.UserDetailView {
 
     public static final String USER_NAME = "user_name";
     private static final String TAG = UserDetailActivity.class.getSimpleName();
@@ -36,6 +45,8 @@ public class UserDetailActivity extends BaseActivity implements ItemClickSupport
     DetailListAdapter detailListAdapter;
     private String mUserName;
 
+    @Inject public UserDetailContract.UserDetailPresenter userDetailPresenter;
+
     public static Intent newInstance(Context context, String username) {
         Intent intent = new Intent(context, UserDetailActivity.class);
         intent.putExtra(USER_NAME, username);
@@ -46,9 +57,12 @@ public class UserDetailActivity extends BaseActivity implements ItemClickSupport
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         mUserName = getIntent().getStringExtra(USER_NAME);
         collapsingToolbarLayout.setTitle(mUserName);
+
+        ((GithubApplication)getApplication()).getAppComponent().inject(this);
+        userDetailPresenter.setView(this);
+        userDetailPresenter.initDatas(mUserName);
 
         appBar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,50 +72,6 @@ public class UserDetailActivity extends BaseActivity implements ItemClickSupport
         });
         rvRepos.setLayoutManager(new LinearLayoutManager(this));
         ItemClickSupport.addTo(rvRepos).setOnItemClickListener(this);
-
-
-//        subscriptionUserDetail = githubApi.getObservableUserDetail(mUserName)
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new Subscriber<DetailedUser>() {
-//                    @Override
-//                    public void onCompleted() {
-//
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//
-//                        DialogUtils.showGeneralErrorDialog(getContext(), errorDefine(e));
-//                    }
-//
-//                    @Override
-//                    public void onNext(DetailedUser detailedUser) {
-//                        Picasso.with(getContext()).load(detailedUser.getAvatar_url()).into(ivUserAvatar);
-//                    }
-//                });
-//
-//        subscriptionUserDetail = githubApi.getObservableRepos(mUserName)
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new Subscriber<List<Repo>>() {
-//                    @Override
-//                    public void onCompleted() {
-//
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//
-//                        DialogUtils.showGeneralErrorDialog(getContext(), errorDefine(e));
-//                    }
-//
-//                    @Override
-//                    public void onNext(List<Repo> repos) {
-//                        detailListAdapter = new DetailListAdapter(repos, getContext());
-//                        rvRepos.setAdapter(detailListAdapter);
-//                    }
-//                });
 
 
     }
@@ -120,7 +90,7 @@ public class UserDetailActivity extends BaseActivity implements ItemClickSupport
     protected void onDestroy() {
         super.onDestroy();
         ItemClickSupport.removeFrom(rvRepos);
-
+        userDetailPresenter.onDestroy();
 
     }
 
@@ -132,5 +102,19 @@ public class UserDetailActivity extends BaseActivity implements ItemClickSupport
     }
 
 
+    @Override
+    public void getReposSuccess(List<Repo> repos) {
+        detailListAdapter = new DetailListAdapter(repos, getContext());
+        rvRepos.setAdapter(detailListAdapter);
+    }
 
+    @Override
+    public void getDetailedUserSuccess(DetailedUser detailedUser) {
+        Picasso.with(getContext()).load(detailedUser.getAvatar_url()).into(ivUserAvatar);
+    }
+
+    @Override
+    public void onRequestFail(Throwable t) {
+        DialogUtils.showGeneralErrorDialog(getContext(), errorDefine(t));
+    }
 }

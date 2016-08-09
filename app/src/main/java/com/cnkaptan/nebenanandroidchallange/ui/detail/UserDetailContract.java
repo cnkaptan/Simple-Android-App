@@ -18,7 +18,7 @@ public interface UserDetailContract {
 
     interface UserDetailPresenter{
         void setView(UserDetailView userDetailView);
-        void onCreate();
+        void initDatas(String userName);
         void onDestroy();
     }
 }
