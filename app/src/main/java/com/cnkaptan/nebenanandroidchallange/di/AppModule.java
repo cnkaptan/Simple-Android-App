@@ -2,6 +2,11 @@ package com.cnkaptan.nebenanandroidchallange.di;
 
 import com.cnkaptan.nebenanandroidchallange.BuildConfig;
 import com.cnkaptan.nebenanandroidchallange.service.GithubService;
+import com.cnkaptan.nebenanandroidchallange.service.RetrofitImpl;
+import com.cnkaptan.nebenanandroidchallange.ui.main.MainContract;
+import com.cnkaptan.nebenanandroidchallange.ui.main.MainPresenterImpl;
+
+import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
@@ -41,7 +46,20 @@ public class AppModule {
 
 
     @Provides
+    @Singleton
     public GithubService provideService(Retrofit retrofit){
         return retrofit.create(GithubService.class);
+    }
+
+
+    @Provides
+    @Singleton
+    public RetrofitImpl provideService(){
+        return new RetrofitImpl();
+    }
+
+    @Provides
+    public MainContract.MainPresenter provideMainPresenter(RetrofitImpl retrofit){
+        return new MainPresenterImpl(retrofit);
     }
 }
