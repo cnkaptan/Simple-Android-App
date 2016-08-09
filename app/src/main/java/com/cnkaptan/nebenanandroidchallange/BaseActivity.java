@@ -4,8 +4,11 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
+import com.cnkaptan.nebenanandroidchallange.service.CustomErrorModel;
+
+import java.io.IOException;
+
 import butterknife.ButterKnife;
-import rx.Subscription;
 
 /**
  * Created by cnkaptan on 28/07/16.
@@ -27,10 +30,21 @@ public abstract class BaseActivity extends AppCompatActivity {
     public abstract Context getContext();
 
 
-
-    public void subscriptionUnscribe(Subscription subscription){
-        if (subscription!= null && subscription.isUnsubscribed()){
-            subscription.unsubscribe();
+    public CustomErrorModel errorDefine(Throwable t){
+        String errorType;
+        String errorDesc;
+        if (t instanceof IOException) {
+            errorType = "Timeout";
+            errorDesc = String.valueOf(t.getCause());
         }
+        else if (t instanceof IllegalStateException) {
+            errorType = "ConversionError";
+            errorDesc = String.valueOf(t.getCause());
+        } else {
+            errorType = "Other Error";
+            errorDesc = String.valueOf(t.getLocalizedMessage());
+        }
+
+        return new CustomErrorModel(errorType,errorDesc);
     }
 }

@@ -13,14 +13,10 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 
 public class RetrofitImpl {
-    private static final String BASE_URL = "";
+    private static final String BASE_URL = GithubService.BASE_URL;
     private GithubService githubApi;
 
     public RetrofitImpl() {
-        this(BASE_URL);
-    }
-
-    private RetrofitImpl(String url){
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .addConverterFactory(GsonConverterFactory.create())

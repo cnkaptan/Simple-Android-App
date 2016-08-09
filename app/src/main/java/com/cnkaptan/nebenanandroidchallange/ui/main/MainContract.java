@@ -25,5 +25,6 @@ public interface MainContract {
         void onDestroy();
         void onLoadMore(int id);
         void firstDataInitialize();
+        void setView(MainView mainView);
     }
 }
